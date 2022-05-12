@@ -1,0 +1,16 @@
+name: bedtools
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - _libgcc_mutex=0.1=conda_forge
+  - _openmp_mutex=4.5=1_gnu
+  - bedtools=2.30.0=h7d7f7ad_2
+  - bzip2=1.0.8=h7f98852_4
+  - libgcc-ng=11.2.0=h1d223b6_9
+  - libgomp=11.2.0=h1d223b6_9
+  - libstdcxx-ng=11.2.0=he4da1e4_9
+  - xz=5.2.5=h516909a_1
+  - zlib=1.2.11=h516909a_1010
+prefix: /home/megan/miniconda3/envs/bedtools

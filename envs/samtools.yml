@@ -1,0 +1,29 @@
+name: samtools
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - _libgcc_mutex=0.1=conda_forge
+  - _openmp_mutex=4.5=1_gnu
+  - bzip2=1.0.8=h7f98852_4
+  - c-ares=1.17.2=h7f98852_0
+  - ca-certificates=2021.5.30=ha878542_0
+  - htslib=1.13=h9093b5e_0
+  - krb5=1.19.2=hcc1bbae_2
+  - libcurl=7.79.1=h2574ce0_1
+  - libdeflate=1.7=h7f98852_5
+  - libedit=3.1.20191231=he28a2e2_2
+  - libev=4.33=h516909a_1
+  - libgcc-ng=11.2.0=h1d223b6_9
+  - libgomp=11.2.0=h1d223b6_9
+  - libnghttp2=1.43.0=h812cca2_1
+  - libssh2=1.10.0=ha56f1ee_2
+  - libstdcxx-ng=11.2.0=he4da1e4_9
+  - ncurses=6.2=h58526e2_4
+  - openssl=1.1.1l=h7f98852_0
+  - samtools=1.13=h8c37831_0
+  - tk=8.6.11=h27826a3_1
+  - xz=5.2.5=h516909a_1
+  - zlib=1.2.11=h36c2ea0_1011
+prefix: /home/megan/miniconda3/envs/samtools

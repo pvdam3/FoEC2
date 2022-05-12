@@ -1,0 +1,40 @@
+####################### PART 01: EFFECTOR IDENTIFICATION #######################
+# Distance downstream of mimp TIR motif to search for ORFs
+search_dist: 2500
+# Translation mode: [3] frame or [6] frame. Default: 3
+mode: 3
+# Minimum effector length in aa
+min_len: 10
+# Maximum effector length in aa
+max_len: 600
+# Minimum number of cysteines required for putative effectors (default: 2)
+cysteine_threshold: 0
+################### PART 02: EFFECTOR CLUSTERING AND SEARCH ####################
+# MCL inflation [1.2-5.0]. Lower=larger clusters; Higher=finer clusters
+mcl_i: 1.2
+################### PART 03: EFFECTOR PRESENCE ABSENCE TABLE ###################
+# E-Value threshold for finding a match to a putative effector in a genome
+eval: 10e-10
+# Minimum length for an effector hit to be a match [0-1]; (hit len/effector len)
+length: 0.8
+# hmmemit: threshold for showing weakly conserved residues as lower case [0-1]
+minl: 0.2
+# hmmemit: threshold for showing strongly conserved residues as upper case [0-1]
+minu: 0.6
+# Path to directory containing curated effectors to search for. Skips putative
+# effector detection (parts 1 and 2)
+effectors: none
+# Maximum mean value (average putative effector hits per genome) allowed in PAV table
+mean_thresh: 5
+# Maximum value (putative effector hits per genome) allowed in PAV table
+individual_thresh: 20
+############################## PROGRAM SETTINGS ################################
+# Either full paths or progs name if prog already in $PATH
+progs:
+  signalp:
+    # Recommed adding SignalP to your PATH to avoid issues
+    path: signalp
+    # Specify version available, 4 or 5
+    version: 5
+    # Number of sequences that will be run simultaneously (only for version 5)
+    batch: 10000

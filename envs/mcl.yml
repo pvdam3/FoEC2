@@ -1,0 +1,50 @@
+name: mcl
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - _libgcc_mutex=0.1=conda_forge
+  - _openmp_mutex=4.5=1_gnu
+  - blast=2.12.0=pl5262h3289130_0
+  - bzip2=1.0.8=h7f98852_4
+  - c-ares=1.18.1=h7f98852_0
+  - ca-certificates=2021.10.8=ha878542_0
+  - curl=7.79.1=h494985f_1
+  - entrez-direct=16.2=he881be0_0
+  - krb5=1.19.2=h48eae69_3
+  - libcurl=7.79.1=h494985f_1
+  - libedit=3.1.20191231=he28a2e2_2
+  - libev=4.33=h516909a_1
+  - libgcc-ng=11.2.0=h1d223b6_11
+  - libgomp=11.2.0=h1d223b6_11
+  - libnghttp2=1.43.0=ha19adfc_1
+  - libssh2=1.10.0=ha35d2d1_2
+  - libstdcxx-ng=11.2.0=he4da1e4_11
+  - libzlib=1.2.11=h36c2ea0_1013
+  - mcl=14.137=pl5262h779adbc_6
+  - ncurses=6.2=h58526e2_4
+  - openssl=3.0.0=h7f98852_2
+  - pcre=8.45=h9c3ff4c_0
+  - perl=5.26.2=h36c2ea0_1008
+  - perl-archive-tar=2.32=pl526_0
+  - perl-carp=1.38=pl526_3
+  - perl-common-sense=3.74=pl526_2
+  - perl-compress-raw-bzip2=2.087=pl526he1b5a44_0
+  - perl-compress-raw-zlib=2.087=pl526hc9558a2_0
+  - perl-exporter=5.72=pl526_1
+  - perl-exporter-tiny=1.002001=pl526_0
+  - perl-extutils-makemaker=7.36=pl526_1
+  - perl-io-compress=2.087=pl526he1b5a44_0
+  - perl-io-zlib=1.10=pl526_2
+  - perl-json=4.02=pl526_0
+  - perl-json-xs=2.34=pl526h6bb024c_3
+  - perl-list-moreutils=0.428=pl526_1
+  - perl-list-moreutils-xs=0.428=pl526_0
+  - perl-pathtools=3.75=pl526h14c3975_1
+  - perl-scalar-list-utils=1.52=pl526h516909a_0
+  - perl-types-serialiser=1.0=pl526_2
+  - perl-xsloader=0.24=pl526_0
+  - tk=8.6.11=h27826a3_1
+  - zlib=1.2.11=h36c2ea0_1013
+prefix: /home/megan/miniconda3/envs/mcl

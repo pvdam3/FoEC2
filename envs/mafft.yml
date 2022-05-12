@@ -1,0 +1,12 @@
+name: mafft
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - _libgcc_mutex=0.1=conda_forge
+  - _openmp_mutex=4.5=1_gnu
+  - libgcc-ng=11.2.0=h1d223b6_11
+  - libgomp=11.2.0=h1d223b6_11
+  - mafft=7.490=h779adbc_0
+prefix: /home/megan/miniconda3/envs/mafft
