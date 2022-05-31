@@ -242,6 +242,8 @@ rule reduce_closest:
         'output/01.findeffectors/logs/reduce_closest/reduce_closest_{sample}.log'
     message:
         'Determining closest mimps upstream to putative ORFs for {wildcards.sample}'
+    conda:
+        '../envs/pandas.yml'
     shell:
         'python3 scripts/01_reduce_closest.py {input} {output} {wildcards.sample} '
         '> {log}'

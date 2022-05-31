@@ -25,8 +25,8 @@ Usage $0:
         sequence is found in the FASTA file, multiple files will be created
         using the header as a file name.
     -g  <path>
-        genome directory (required). Directory containing genomes to run through
-        the pipeline.
+        genome directory (required). Directory which only contains genomes in
+        FASTA format to run through the pipeline.
     -h
         help. Shows this message.
 "

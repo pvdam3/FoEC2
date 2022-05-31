@@ -65,6 +65,7 @@ The plots can be seen in the 'Plots' tab:
 The pipeline relies a number of different 3rd party programs and libraries:
 * [Conda](https://docs.conda.io/en/latest/)
 * [Snakemake](https://snakemake.readthedocs.io/en/stable/getting_started/installation.html)
+* [Singularity](https://sylabs.io/guides/3.0/user-guide/quick_start.html#quick-installation-steps) (only required to run FoEC2 with a container - recommended for macOS users)
 * [SignalP](http://www.cbs.dtu.dk/cgi-bin/nph-sw_request?signalp) (only versions 4 and 5 are currently supported)
 * R with the following libraries installed:
   * shiny

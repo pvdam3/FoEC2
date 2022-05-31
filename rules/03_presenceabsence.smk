@@ -230,6 +230,8 @@ rule filter_pav:
         'Filtering PAV table...'
     benchmark:
         'output/03.presenceabsence/benchmarks/part_03/part_03.benchmark.txt'
+    conda:
+        '../envs/pandas.yml'
     shell:
         'python3 scripts/03_filter_pav.py '
         '{input.pav} {params.mean_thresh} {params.individual_thresh} {output} {params.csv}'
