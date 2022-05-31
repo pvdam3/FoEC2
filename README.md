@@ -29,7 +29,8 @@ The following steps are executed in this pipeline:
 
 ## Usage
 Please first make sure to have all the dependencies installed (see below).
-This pipeline requires that the paths to the input genomes be in a specific configuration file. In order to facilitate this, the `foec_setup.sh` script automatically creates this config file. Usage: 
+This pipeline requires that the paths to the input genomes be in a specific configuration file. In order to facilitate this, the `foec_setup.sh` script automatically creates this config file. Usage, where `infolder` is the path to a
+directory which only contains the input genomes in FASTA format: 
 ```bash
 ./foec_setup.sh -g [infolder]
 ```
@@ -64,7 +65,7 @@ The plots can be seen in the 'Plots' tab:
 The pipeline relies a number of different 3rd party programs and libraries:
 * [Conda](https://docs.conda.io/en/latest/)
 * [Snakemake](https://snakemake.readthedocs.io/en/stable/getting_started/installation.html)
-* [SignalP](http://www.cbs.dtu.dk/cgi-bin/nph-sw_request?signalp)
+* [SignalP](http://www.cbs.dtu.dk/cgi-bin/nph-sw_request?signalp) (only versions 4 and 5 are currently supported)
 * R with the following libraries installed:
   * shiny
   * shinythemes
