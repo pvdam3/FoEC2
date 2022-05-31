@@ -139,7 +139,7 @@ rule nhmmer:
         'output/03.presenceabsence/benchmarks/nhmmer/{sample}_nhmmer.benchmark.txt'
     shell:
         """
-        hitfastas=output/{wildcards.outfolder}/hit_fastas/
+        hitfastas=output/03.presenceabsence/hit_fastas/
         mkdir -p {output.nhmmer}
         for cluster_profile in {input.hmm_dir}/*; do
             hmm_file=$(basename $cluster_profile .hmm)

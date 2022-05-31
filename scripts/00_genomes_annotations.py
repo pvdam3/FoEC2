@@ -33,6 +33,7 @@ def create_dict(gen_dir, ann_dir):
     ann_dir         --  input, path to directory with annotation files
     gen_ann_dict    --  output, dict of lists, {genome_name:[genome], annotation}
     """
+    fasta_exts = ('.fasta', '.fa', '.fna', '.faa')
     # Genomes in dir
     gen_num = 0
     # Annotations in dir
@@ -47,8 +48,7 @@ def create_dict(gen_dir, ann_dir):
     for gen_filepath in gen_paths:
         abs_gen_path = gen_filepath.absolute()
         # Skip index files if present
-        if not str(abs_gen_path).endswith('.fai') and \
-        not str(abs_gen_path).endswith('index'):
+        if str(abs_gen_path).endswith(fasta_exts):
             gen_num += 1
             gen_stem = abs_gen_path.stem
             gen_ann_dict[gen_stem] = [str(abs_gen_path)]

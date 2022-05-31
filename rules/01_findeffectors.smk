@@ -105,7 +105,7 @@ rule combine_mimps:
         'Writing "{output}"'
     shell:
         'cat {input} > {output} && '
-        'rm features_level*.json' # Remove JSON from AGAT when tool is done
+        'rm features_level*.json && rm features_spread.json' # Remove JSON from AGAT when tool is done
 
 rule combine_fasta:
 # Combine all putative effector genomic/protein FASTAs into a single FASTA
