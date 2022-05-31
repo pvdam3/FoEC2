@@ -243,7 +243,7 @@ rule reduce_closest:
     message:
         'Determining closest mimps upstream to putative ORFs for {wildcards.sample}'
     conda:
-        '../envs/pandas.yml'
+        '../envs/py38-biopython178.yml'
     shell:
         'python3 scripts/01_reduce_closest.py {input} {output} {wildcards.sample} '
         '> {log}'

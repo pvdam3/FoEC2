@@ -231,7 +231,7 @@ rule filter_pav:
     benchmark:
         'output/03.presenceabsence/benchmarks/part_03/part_03.benchmark.txt'
     conda:
-        '../envs/pandas.yml'
+        '../envs/py38-biopython178.yml'
     shell:
         'python3 scripts/03_filter_pav.py '
         '{input.pav} {params.mean_thresh} {params.individual_thresh} {output} {params.csv}'
