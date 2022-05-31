@@ -36,7 +36,7 @@ def hmm_input(eff_dir):
             os.system('rm p_effector_check/*')
             os.system('rmdir p_effector_check')
     if eff_dir == 'none':
-        return 'output/{outfolder}/temp_hmm_in'
+        return 'output/03.presenceabsence/temp_hmm_in'
     else:
         for eff_file in os.listdir(eff_dir):
             os.system('mkdir -p p_effector_check')
@@ -65,11 +65,11 @@ rule hmmer_profiles:
     input:
         hmm_input(config['effectors'])
     output:
-        temp(directory('output/{outfolder}/temp_hmm'))
+        temp(directory('output/03.presenceabsence/temp_hmm'))
     conda:
         '../envs/hmmer.yml'
     log:
-        'output/{outfolder}/logs/hmm_profiles.log'
+        'output/03.presenceabsence/logs/hmm_profiles.log'
     message:
         'Creating HMM profiles...'
     shell:
@@ -89,9 +89,9 @@ rule hmmer_profiles:
 rule hmmemit:
 # Emits a consensus sequence from a profile HMM
     input:
-        'output/{outfolder}/temp_hmm'
+        'output/03.presenceabsence/temp_hmm'
     output:
-        temp(directory('output/{outfolder}/putative_effectors'))
+        temp(directory('output/03.presenceabsence/putative_effectors'))
     conda:
         '../envs/hmmer.yml'
     message:
@@ -122,13 +122,13 @@ rule nhmmer:
 # Runs nhmmer, searches for profiles in genome
     input:
         genome_file = lambda wildcards: config['genomes'][wildcards.sample],
-        hmm_dir = 'output/{outfolder}/temp_hmm'
+        hmm_dir = 'output/03.presenceabsence/temp_hmm'
     output:
-        nhmmer = temp(directory('output/{outfolder}/nhmmer_{sample}'))
+        nhmmer = temp(directory('output/03.presenceabsence/nhmmer_{sample}'))
     conda:
         '../envs/hmmer.yml'
     log:
-        'output/{outfolder}/logs/nhmmer/nhmmer_{sample}.log'
+        'output/03.presenceabsence/logs/nhmmer/nhmmer_{sample}.log'
     message:
         'Running nhmmer...'
     params:
@@ -136,7 +136,7 @@ rule nhmmer:
     threads:
         2
     benchmark:
-        'output/{outfolder}/benchmarks/nhmmer/{sample}_nhmmer.benchmark.txt'
+        'output/03.presenceabsence/benchmarks/nhmmer/{sample}_nhmmer.benchmark.txt'
     shell:
         """
         hitfastas=output/{wildcards.outfolder}/hit_fastas/
@@ -171,7 +171,7 @@ rule merge_dirs:
     input:
         nhmmer = expand('output/03.presenceabsence/nhmmer_{sample}', sample = config['genomes'])
     output:
-        temp(directory('output/{outfolder}/nhmmer'))
+        temp(directory('output/03.presenceabsence/nhmmer'))
     run:
         shell('mkdir -p {output}')
         shell(merge_nhmmer({input}, {output}))
@@ -179,14 +179,14 @@ rule merge_dirs:
 rule parse_hmm:
 # Parses output from nhmmer
     input:
-        nhmmer = 'output/{outfolder}/nhmmer',
-        hmm_dir = 'output/{outfolder}/temp_hmm'
+        nhmmer = 'output/03.presenceabsence/nhmmer',
+        hmm_dir = 'output/03.presenceabsence/temp_hmm'
     output:
-        'output/{outfolder}/00_genome_effector_hits.out'
+        'output/03.presenceabsence/00_genome_effector_hits.out'
     message:
         'Parsing nhmmer output...'
     log:
-        'output/{outfolder}/logs/parse_hmm.log'
+        'output/03.presenceabsence/logs/parse_hmm.log'
     params:
         length = config['length'],
         # Check if effectors provided
@@ -204,9 +204,9 @@ rule parse_hmm:
 rule pav_table:
 # Creates effector PAV table
     input:
-        'output/{outfolder}/00_genome_effector_hits.out'
+        'output/03.presenceabsence/00_genome_effector_hits.out'
     output:
-        pav = temp('output/{outfolder}/presence_absence.tsv')
+        pav = temp('output/03.presenceabsence/presence_absence.tsv')
     message:
         'Creating PAV table...'
     params:
@@ -218,10 +218,10 @@ rule pav_table:
 rule filter_pav:
 # Filters PAV table, removes some putative effectors (likely TEs)
     input:
-        pav = 'output/{outfolder}/presence_absence.tsv'
+        pav = 'output/03.presenceabsence/presence_absence.tsv'
     output:
-        sv = 'output/{outfolder}/01_presence_absence.tsv',
-        pout = temp('output/{outfolder}/putative_effector_ids.txt')
+        sv = 'output/03.presenceabsence/01_presence_absence.tsv',
+        pout = temp('output/03.presenceabsence/putative_effector_ids.txt')
     params:
         mean_thresh = config['mean_thresh'],
         individual_thresh = config['individual_thresh'],
@@ -229,7 +229,7 @@ rule filter_pav:
     message:
         'Filtering PAV table...'
     benchmark:
-        'output/{outfolder}/benchmarks/part_03/part_03.benchmark.txt'
+        'output/03.presenceabsence/benchmarks/part_03/part_03.benchmark.txt'
     shell:
         'python3 scripts/03_filter_pav.py '
         '{input.pav} {params.mean_thresh} {params.individual_thresh} {output} {params.csv}'

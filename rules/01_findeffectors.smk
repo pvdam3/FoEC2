@@ -38,6 +38,8 @@ rule find_TIRs:
         'Finding mimp TIRs for {wildcards.sample}'
     log:
         'output/01.findeffectors/logs/find_TIRs/find_TIRs_{sample}.log'
+    conda:
+        '../envs/py38-biopython178.yml'
     shell:
         'python3 scripts/01_mimpTIR_finder.py '
         '{input.genome_file} {output} {wildcards.sample} > {log}'
@@ -45,9 +47,9 @@ rule find_TIRs:
 rule sort_bed:
 # Sort bed file
     input:
-        bed = 'output/{outfolder}/{sample}/{sample}_{label_sort}.bed'
+        bed = 'output/01.findeffectors/{sample}/{sample}_{label_sort}.bed'
     output:
-        sorted_bed = temp('output/{outfolder}/{sample}/{sample}_{label_sort}_sorted.bed')
+        sorted_bed = temp('output/01.findeffectors/{sample}/{sample}_{label_sort}_sorted.bed')
     message:
         'Sorting "{input}"'
     shell:
@@ -77,9 +79,9 @@ rule bedtools_getfasta:
 # Get FASTA file from bed file
     input:
         genome_file = lambda wildcards: config['genomes'][wildcards.sample],
-        in_bed = 'output/{outfolder}/{sample}/{sample}_{label}.bed'
+        in_bed = 'output/01.findeffectors/{sample}/{sample}_{label}.bed'
     output:
-        out_fasta = 'output/{outfolder}/{sample}/{sample}_{label}.fasta'
+        out_fasta = 'output/01.findeffectors/{sample}/{sample}_{label}.fasta'
     conda:
         '../envs/bedtools.yml'
     message:
@@ -170,9 +172,9 @@ rule bedtools_flank:
 # Create a new bed file with flanking regions of input bed file
     input:
         in_fai = lambda wildcards: config['genomes'][wildcards.sample] + '.fai',
-        mimp_bed = 'output/{outfolder}/{sample}/{sample}_{label}_{flank}.bed'
+        mimp_bed = 'output/01.findeffectors/{sample}/{sample}_{label}_{flank}.bed'
     output:
-        temp('output/{outfolder}/{sample}/{sample}_{label}_flanked_{flank}.bed')
+        temp('output/01.findeffectors/{sample}/{sample}_{label}_flanked_{flank}.bed')
     wildcard_constraints:
         flank = '[l|r|b]'
     conda:
@@ -192,9 +194,9 @@ rule bedtools_flank:
 rule bedtools_merge:
 # Combines overlapping elements in a bed file
     input:
-        'output/{outfolder}/{sample}/{sample}_all_mimps_streamed_sorted.bed'
+        'output/01.findeffectors/{sample}/{sample}_all_mimps_streamed_sorted.bed'
     output:
-       temp('output/{outfolder}/{sample}/{sample}_mimps_flanked_merged.bed')
+       temp('output/01.findeffectors/{sample}/{sample}_mimps_flanked_merged.bed')
     conda:
         '../envs/bedtools.yml'
     message:
@@ -213,12 +215,12 @@ rule bedtools_merge:
 rule bedtools_closest:
 # Finds closest features in A and B
     input:
-        orfs = 'output/{outfolder}/{sample}/{sample}_orfs_genomic_sorted.bed',
+        orfs = 'output/01.findeffectors/{sample}/{sample}_orfs_genomic_sorted.bed',
         both_bed = 'output/01.findeffectors/{sample}/{sample}_mimps_b.bed',
         l_bed = 'output/01.findeffectors/{sample}/{sample}_mimps_l.bed',
         r_bed = 'output/01.findeffectors/{sample}/{sample}_mimps_r.bed'
     output:
-        temp('output/{outfolder}/{sample}/{sample}_closest_mimps_expanded.tsv')
+        temp('output/01.findeffectors/{sample}/{sample}_closest_mimps_expanded.tsv')
     conda:
         '../envs/bedtools.yml'
     message:
@@ -233,11 +235,11 @@ rule bedtools_closest:
 rule reduce_closest:
 # Reduces closest mimp output to only one mimp per ORF
     input:
-        'output/{outfolder}/{sample}/{sample}_closest_mimps_expanded.tsv'
+        'output/01.findeffectors/{sample}/{sample}_closest_mimps_expanded.tsv'
     output:
-        'output/{outfolder}/{sample}/{sample}_closest_mimps.tsv'
+        'output/01.findeffectors/{sample}/{sample}_closest_mimps.tsv'
     log:
-        'output/{outfolder}/logs/reduce_closest/reduce_closest_{sample}.log'
+        'output/01.findeffectors/logs/reduce_closest/reduce_closest_{sample}.log'
     message:
         'Determining closest mimps upstream to putative ORFs for {wildcards.sample}'
     shell:
@@ -247,9 +249,9 @@ rule reduce_closest:
 rule add_stream:
 # Add if an element is up or downstream to names in bed file
     input:
-        mimp_flanked_bed = 'output/{outfolder}/{sample}/{sample}_{label}_flanked.bed'
+        mimp_flanked_bed = 'output/01.findeffectors/{sample}/{sample}_{label}_flanked.bed'
     output:
-        mimp_reg_bed = temp('output/{outfolder}/{sample}/{sample}_{label}_streamed.bed')
+        mimp_reg_bed = temp('output/01.findeffectors/{sample}/{sample}_{label}_streamed.bed')
     message:
         'Labeling regions up/downstream to mimps for {wildcards.sample}'
     shell:
@@ -258,17 +260,19 @@ rule add_stream:
 rule get_orfs:
 # Identify ORFs in FASTA file and get genomic/protein sequences
     input:
-        merged = 'output/{outfolder}/{sample}/{sample}_mimps_flanked_merged.fasta'
+        merged = 'output/01.findeffectors/{sample}/{sample}_mimps_flanked_merged.fasta'
     output:
-        translation = 'output/{outfolder}/{sample}/{sample}_translated_flanks.fasta',
-        put_orfs = 'output/{outfolder}/{sample}/{sample}_orfs_genomic.bed',
-        orf_gff = temp('output/{outfolder}/{sample}/annotations/{sample}_orfs.gff')
+        translation = 'output/01.findeffectors/{sample}/{sample}_translated_flanks.fasta',
+        put_orfs = 'output/01.findeffectors/{sample}/{sample}_orfs_genomic.bed',
+        orf_gff = temp('output/01.findeffectors/{sample}/annotations/{sample}_orfs.gff')
     message:
         'Finding putative ORF coordinates for {wildcards.sample}'
     params:
         min_len = config['min_len'],
         max_len = config['max_len'],
         mode = config['mode']
+    conda:
+        '../envs/py38-biopython178.yml'
     shell:
         'python3 scripts/01_orf_finder.py {input.merged} {output.translation} '
         '{params.min_len} {params.max_len} {output.put_orfs} {output.orf_gff} '
@@ -277,9 +281,9 @@ rule get_orfs:
 rule bedtools_intersect:
     input:
         user_gff = lambda wildcards: config['annotations'][wildcards.sample],
-        merged_flanks = 'output/{outfolder}/{sample}/{sample}_mimps_flanked_merged.bed'
+        merged_flanks = 'output/01.findeffectors/{sample}/{sample}_mimps_flanked_merged.bed'
     output:
-        temp('output/{outfolder}/{sample}/{sample}_reduced_user.gff')
+        temp('output/01.findeffectors/{sample}/{sample}_reduced_user.gff')
     conda:
         '../envs/bedtools.yml'
     message:
@@ -294,10 +298,10 @@ def gff_input(wildcards):
     """Adds user GFF file to mix if provided
 
     """
-    inputs = ['output/{outfolder}/{sample}/annotations/{sample}_orfs.gff']
+    inputs = ['output/01.findeffectors/{sample}/annotations/{sample}_orfs.gff']
     try:
         gff_file = config['annotations'][wildcards.sample].split('/')[-1]
-        reduced_gff = 'output/{outfolder}/{sample}/{sample}_reduced_user.gff'
+        reduced_gff = 'output/01.findeffectors/{sample}/{sample}_reduced_user.gff'
         inputs.append(reduced_gff)
     except:
         pass
@@ -308,9 +312,9 @@ rule gffread_extract_genomic:
 # Extract CDS sequences from GFF and output genomic FASTA
     input:
         genome_fasta = lambda wildcards: config['genomes'][wildcards.sample],
-        gff = 'output/{outfolder}/{sample}/annotations/{sample}_putative_{tag}.gff'
+        gff = 'output/01.findeffectors/{sample}/annotations/{sample}_putative_{tag}.gff'
     output:
-        genomic_fasta = temp('output/{outfolder}/{sample}/{sample}_putative_{tag}_genomic.fasta')
+        genomic_fasta = temp('output/01.findeffectors/{sample}/{sample}_putative_{tag}_genomic.fasta')
     message:
         'Writing genomic FASTA for "{input.gff}"'
     conda:
@@ -324,9 +328,9 @@ rule gffread_extract_protein:
 # Extract CDS sequences from GFF and output protein FASTA
     input:
         genome_fasta = lambda wildcards: config['genomes'][wildcards.sample],
-        gff = 'output/{outfolder}/{sample}/annotations/{sample}_putative_{tag}.gff'
+        gff = 'output/01.findeffectors/{sample}/annotations/{sample}_putative_{tag}.gff'
     output:
-        protein_fasta = temp('output/{outfolder}/{sample}/{sample}_putative_{tag}_protein.fasta'),
+        protein_fasta = temp('output/01.findeffectors/{sample}/{sample}_putative_{tag}_protein.fasta'),
     message:
         'Writing genomic and protein FASTA for "{input.gff}"'
     conda:
@@ -339,16 +343,18 @@ rule gffread_extract_protein:
 rule final_filter:
 # Filters out sequences by size, cysteine threshold
     input:
-        prot = 'output/{outfolder}/{sample}/{sample}_putative_tofilter_protein.fasta'
+        prot = 'output/01.findeffectors/{sample}/{sample}_putative_tofilter_protein.fasta'
     output:
-        prot = temp('output/{outfolder}/{sample}/{sample}_putative_final_protein_filtered.fasta'),
-        keep = temp('output/{outfolder}/{sample}/{sample}_putative_final_protein_filtered_keeplist.txt')
+        prot = temp('output/01.findeffectors/{sample}/{sample}_putative_final_protein_filtered.fasta'),
+        keep = temp('output/01.findeffectors/{sample}/{sample}_putative_final_protein_filtered_keeplist.txt')
     message:
         'Removing sequences which do not meet minimum size and cysteine content requirements...'
     params:
         cys_thresh = config['cysteine_threshold'],
         min_len = config['min_len'],
         max_len = config['max_len']
+    conda:
+        '../envs/py38-biopython178.yml'
     shell:
         'python3 scripts/01_cysteine_content.py '
         '{input.prot} {params.cys_thresh} {params.min_len} {params.max_len} '
@@ -357,13 +363,13 @@ rule final_filter:
 rule run_signalp:
 # Runs SignalP on ORFs
     input:
-        orf_fasta = 'output/{outfolder}/{sample}/{sample}_putative_orfs_protein.fasta'
+        orf_fasta = 'output/01.findeffectors/{sample}/{sample}_putative_orfs_protein.fasta'
     output:
-        sp_gff = temp('output/{outfolder}/{sample}/annotations/{sample}_sp.gff3'),
-        sp_summary = temp('output/{outfolder}/{sample}/annotations/{sample}_sp_summary.txt'),
-        keep_list = temp('output/{outfolder}/{sample}/annotations/{sample}_keep_list.txt')
+        sp_gff = temp('output/01.findeffectors/{sample}/annotations/{sample}_sp.gff3'),
+        sp_summary = temp('output/01.findeffectors/{sample}/annotations/{sample}_sp_summary.txt'),
+        keep_list = temp('output/01.findeffectors/{sample}/annotations/{sample}_keep_list.txt')
     log:
-        run_sp = 'output/{outfolder}/logs/run_signalp/run_signalp_{sample}.log'
+        run_sp = 'output/01.findeffectors/logs/run_signalp/run_signalp_{sample}.log'
     message:
         'Running SignalP version {params.version} on "{input}"'
     params:
@@ -372,7 +378,7 @@ rule run_signalp:
         batch = config['progs']['signalp']['batch'],
         version = config['progs']['signalp']['version']
     benchmark:
-        'output/{outfolder}/benchmarks/signalp/{sample}_signalp.benchmark.txt'
+        'output/01.findeffectors/benchmarks/signalp/{sample}_signalp.benchmark.txt'
     threads:
         2
     run:
@@ -404,13 +410,13 @@ rule run_signalp:
 rule process_signalp:
 # Processes SignalP output
     input:
-        sp_gff = 'output/{outfolder}/{sample}/annotations/{sample}_sp.gff3',
-        orfs_gff = 'output/{outfolder}/{sample}/annotations/{sample}_putative_orfs.gff',
-        sp_summary = 'output/{outfolder}/{sample}/annotations/{sample}_sp_summary.txt'
+        sp_gff = 'output/01.findeffectors/{sample}/annotations/{sample}_sp.gff3',
+        orfs_gff = 'output/01.findeffectors/{sample}/annotations/{sample}_putative_orfs.gff',
+        sp_summary = 'output/01.findeffectors/{sample}/annotations/{sample}_sp_summary.txt'
     output:
-        sp_out = temp('output/{outfolder}/{sample}/annotations/{sample}_genomic_sp.gff')
+        sp_out = temp('output/01.findeffectors/{sample}/annotations/{sample}_genomic_sp.gff')
     log:
-        'output/{outfolder}/logs/process_signalp/process_signalp_{sample}.log'
+        'output/01.findeffectors/logs/process_signalp/process_signalp_{sample}.log'
     message:
         'Processing SignalP output for {wildcards.sample}'
     params:
@@ -423,12 +429,12 @@ rule process_signalp:
 rule agat_merge:
 # Merges multiple GFF files (user input and pipeline orfs)
     input:
-        foec_gff = 'output/{outfolder}/{sample}/annotations/{sample}_orfs.gff',
+        foec_gff = 'output/01.findeffectors/{sample}/annotations/{sample}_orfs.gff',
         gffs = gff_input
     output:
-        temp('output/{outfolder}/{sample}/annotations/{sample}_putative_orfs_tosort.gff')
+        temp('output/01.findeffectors/{sample}/annotations/{sample}_putative_orfs_tosort.gff')
     log:
-        'output/{outfolder}/logs/agat_merge/agat_merge_{sample}.log'
+        'output/01.findeffectors/logs/agat_merge/agat_merge_{sample}.log'
     message:
         'Merging input GFF files for {wildcards.sample}'
     conda:
@@ -452,13 +458,13 @@ rule agat_merge:
 rule agat_filter_keep_list:
 # Filters GFF based on keep list
     input:
-        combined_orfs_gff = 'output/{outfolder}/{sample}/annotations/{sample}_putative_orfs.gff',
-        keep_list = 'output/{outfolder}/{sample}/annotations/{sample}_keep_list.txt'
+        combined_orfs_gff = 'output/01.findeffectors/{sample}/annotations/{sample}_putative_orfs.gff',
+        keep_list = 'output/01.findeffectors/{sample}/annotations/{sample}_keep_list.txt'
     output:
-        temp('output/{outfolder}/{sample}/annotations/{sample}_filtered.gff'),
-        temp('output/{outfolder}/{sample}/annotations/{sample}_filtered_report.txt')
+        temp('output/01.findeffectors/{sample}/annotations/{sample}_filtered.gff'),
+        temp('output/01.findeffectors/{sample}/annotations/{sample}_filtered_report.txt')
     log:
-        'output/{outfolder}/logs/agat_filter/agat_filter_{sample}.log'
+        'output/01.findeffectors/logs/agat_filter/agat_filter_{sample}.log'
     message:
         'Filtering GFF file for proteins with a signal peptide for {wildcards.sample}'
     conda:
@@ -472,12 +478,12 @@ rule agat_filter_keep_list:
 rule agat_filter_keep_list_final:
 # Filters final GFF based on keep list
     input:
-        gff = 'output/{outfolder}/{sample}/annotations/{sample}_putative_tofilter.gff',
-        keep = 'output/{outfolder}/{sample}/{sample}_putative_final_protein_filtered_keeplist.txt'
+        gff = 'output/01.findeffectors/{sample}/annotations/{sample}_putative_tofilter.gff',
+        keep = 'output/01.findeffectors/{sample}/{sample}_putative_final_protein_filtered_keeplist.txt'
     output:
-        temp('output/{outfolder}/{sample}/annotations/{sample}_putative_finalfiltered.gff'),
+        temp('output/01.findeffectors/{sample}/annotations/{sample}_putative_finalfiltered.gff'),
     log:
-        'output/{outfolder}/logs/agat_filter/agat_filter_final_{sample}.log'
+        'output/01.findeffectors/logs/agat_filter/agat_filter_final_{sample}.log'
     message:
         'Filtering GFF file for {wildcards.sample} (final filter)'
     conda:
@@ -491,11 +497,11 @@ rule agat_filter_keep_list_final:
 rule agat_sort:
 # Sorts and fixes GFF files
     input:
-        gff = 'output/{outfolder}/{sample}/annotations/{sample}_{description}_tosort.gff'
+        gff = 'output/01.findeffectors/{sample}/annotations/{sample}_{description}_tosort.gff'
     output:
-        sorted_gff = temp('output/{outfolder}/{sample}/annotations/{sample}_{description}.gff')
+        sorted_gff = temp('output/01.findeffectors/{sample}/annotations/{sample}_{description}.gff')
     log:
-        sort_log = 'output/{outfolder}/logs/agat_sort/agat_sort_{sample}_{description}.log'
+        sort_log = 'output/01.findeffectors/logs/agat_sort/agat_sort_{sample}_{description}.log'
     message:
         'Sorting GFF file "{input}"'
     conda:
@@ -512,10 +518,10 @@ rule agat_sort:
 rule combine_gffs:
 # Combines SP predicted features (with genomic coords) and filtered GFF
     input:
-        sp_orfs = 'output/{outfolder}/{sample}/annotations/{sample}_filtered.gff',
-        sps = 'output/{outfolder}/{sample}/annotations/{sample}_genomic_sp.gff'
+        sp_orfs = 'output/01.findeffectors/{sample}/annotations/{sample}_filtered.gff',
+        sps = 'output/01.findeffectors/{sample}/annotations/{sample}_genomic_sp.gff'
     output:
-        combined = temp('output/{outfolder}/{sample}/annotations/{sample}_sp_orfs_tosort.gff')
+        combined = temp('output/01.findeffectors/{sample}/annotations/{sample}_sp_orfs_tosort.gff')
     message:
         'Combining signal peptide and putative ORF GFF files for {wildcards.sample}'
     shell:
@@ -524,9 +530,9 @@ rule combine_gffs:
 rule remove_nonsp:
 # Removes non SP features
     input:
-        all_orfs = 'output/{outfolder}/{sample}/annotations/{sample}_sp_orfs.gff'
+        all_orfs = 'output/01.findeffectors/{sample}/annotations/{sample}_sp_orfs.gff'
     output:
-        reduced_sp = temp('output/{outfolder}/{sample}/annotations/{sample}_putative_effectors_tosort.gff')
+        reduced_sp = temp('output/01.findeffectors/{sample}/annotations/{sample}_putative_effectors_tosort.gff')
     message:
         'Removing features unrelated to signal peptides for {wildcards.sample}'
     shell:
@@ -536,10 +542,10 @@ rule remove_nonsp:
 rule get_sp_contigs:
 # Gets contigs containing ORFs with SPs for Augustus prediction
     input:
-        sp_gff = 'output/{outfolder}/{sample}/annotations/{sample}_sp.gff3',
+        sp_gff = 'output/01.findeffectors/{sample}/annotations/{sample}_sp.gff3',
         genome_file = lambda wildcards: config['genomes'][wildcards.sample]
     output:
-        outfasta = temp(directory('output/{outfolder}/{sample}/contigs_{sample}/'))
+        outfasta = temp(directory('output/01.findeffectors/{sample}/contigs_{sample}/'))
     shell:
         'mkdir -p {output} && '
         'python3 scripts/01_sp_contigs.py {input} {output}'
@@ -547,14 +553,14 @@ rule get_sp_contigs:
 rule run_augustus:
 # Run Augustus per SP containing ORF
     input:
-        gff = 'output/{outfolder}/{sample}/annotations/{sample}_putative_effectors.gff',
-        contigs = 'output/{outfolder}/{sample}/contigs_{sample}/'
+        gff = 'output/01.findeffectors/{sample}/annotations/{sample}_putative_effectors.gff',
+        contigs = 'output/01.findeffectors/{sample}/contigs_{sample}/'
     output:
-        aug_dir = temp(directory('output/{outfolder}/{sample}/augustus_out/'))
+        aug_dir = temp(directory('output/01.findeffectors/{sample}/augustus_out/'))
     conda:
         '../envs/augustus.yml'
     benchmark:
-        'output/{outfolder}/benchmarks/augustus/{sample}_augustus.benchmark.txt'
+        'output/01.findeffectors/benchmarks/augustus/{sample}_augustus.benchmark.txt'
     shell:
         'mkdir -p {output} && '
         'python3 scripts/01_run_augustus.py {input} {output}'
@@ -562,15 +568,15 @@ rule run_augustus:
 rule merge_augustus:
 # Merges Augustus GFF + pipeline GFF (only includes valid Augustus predictions)
     input:
-        p_gff = 'output/{outfolder}/{sample}/annotations/{sample}_putative_effectors.gff',
-        aug_dir = 'output/{outfolder}/{sample}/augustus_out/'
+        p_gff = 'output/01.findeffectors/{sample}/annotations/{sample}_putative_effectors.gff',
+        aug_dir = 'output/01.findeffectors/{sample}/augustus_out/'
     output:
-        construct_gff = temp('output/{outfolder}/{sample}/annotations/{sample}_constructed.gff'),
-        merge_loci = temp('output/{outfolder}/{sample}/annotations/{sample}_mergedloci.gff'),
-        out_gff = temp('output/{outfolder}/{sample}/annotations/{sample}_putative_tofilter_tosort.gff')
+        construct_gff = temp('output/01.findeffectors/{sample}/annotations/{sample}_constructed.gff'),
+        merge_loci = temp('output/01.findeffectors/{sample}/annotations/{sample}_mergedloci.gff'),
+        out_gff = temp('output/01.findeffectors/{sample}/annotations/{sample}_putative_tofilter_tosort.gff')
     log:
-        gxf = 'output/{outfolder}/logs/merge_augustus/agat_sort_{sample}.log',
-        li = 'output/{outfolder}/logs/merge_augustus/agat_longest_isoform_{sample}.log'
+        gxf = 'output/01.findeffectors/logs/merge_augustus/agat_sort_{sample}.log',
+        li = 'output/01.findeffectors/logs/merge_augustus/agat_longest_isoform_{sample}.log'
     params:
         cwd = os.getcwd()
     conda:
@@ -591,40 +597,40 @@ rule merge_augustus:
 
 rule rename_output:
     input:
-        comp_mimp_fasta = 'output/{outfolder}/{sample}/{sample}_mimps_b.fasta',
-        mimp_merged_fasta = 'output/{outfolder}/{sample}/{sample}_mimps_flanked_merged.fasta',
-        mimp_merged_trans = 'output/{outfolder}/{sample}/{sample}_translated_flanks.fasta',
-        orfs_genomic_bed = 'output/{outfolder}/{sample}/{sample}_orfs_genomic.bed',
-        orfs_genomic_fasta = 'output/{outfolder}/{sample}/{sample}_orfs_genomic.fasta',
-        closest_bed = 'output/{outfolder}/{sample}/{sample}_closest_mimps.tsv',
-        pro_fasta_orf = 'output/{outfolder}/{sample}/{sample}_putative_orfs_protein.fasta',
-        gen_fasta_orf = 'output/{outfolder}/{sample}/{sample}_putative_orfs_genomic.fasta',
-        pro_fasta_eff = 'output/{outfolder}/{sample}/{sample}_putative_final_protein_filtered.fasta',
-        gen_fasta_eff = 'output/{outfolder}/{sample}/{sample}_putative_finalfiltered_genomic.fasta',
-        mimp_gff = 'output/{outfolder}/{sample}/annotations/{sample}_mimps.gff',
-        orf_gff = 'output/{outfolder}/{sample}/annotations/{sample}_putative_orfs.gff',
-        sp_gff = 'output/{outfolder}/{sample}/annotations/{sample}_sp.gff3',
-        final_gff = 'output/{outfolder}/{sample}/annotations/{sample}_putative_finalfiltered.gff'
+        comp_mimp_fasta = 'output/01.findeffectors/{sample}/{sample}_mimps_b.fasta',
+        mimp_merged_fasta = 'output/01.findeffectors/{sample}/{sample}_mimps_flanked_merged.fasta',
+        mimp_merged_trans = 'output/01.findeffectors/{sample}/{sample}_translated_flanks.fasta',
+        orfs_genomic_bed = 'output/01.findeffectors/{sample}/{sample}_orfs_genomic.bed',
+        orfs_genomic_fasta = 'output/01.findeffectors/{sample}/{sample}_orfs_genomic.fasta',
+        closest_bed = 'output/01.findeffectors/{sample}/{sample}_closest_mimps.tsv',
+        pro_fasta_orf = 'output/01.findeffectors/{sample}/{sample}_putative_orfs_protein.fasta',
+        gen_fasta_orf = 'output/01.findeffectors/{sample}/{sample}_putative_orfs_genomic.fasta',
+        pro_fasta_eff = 'output/01.findeffectors/{sample}/{sample}_putative_final_protein_filtered.fasta',
+        gen_fasta_eff = 'output/01.findeffectors/{sample}/{sample}_putative_finalfiltered_genomic.fasta',
+        mimp_gff = 'output/01.findeffectors/{sample}/annotations/{sample}_mimps.gff',
+        orf_gff = 'output/01.findeffectors/{sample}/annotations/{sample}_putative_orfs.gff',
+        sp_gff = 'output/01.findeffectors/{sample}/annotations/{sample}_sp.gff3',
+        final_gff = 'output/01.findeffectors/{sample}/annotations/{sample}_putative_finalfiltered.gff'
     output:
-        comp_mimp_fasta = 'output/{outfolder}/{sample}/{sample}_00_complete_mimps.fasta',
-        mimp_merged_fasta = 'output/{outfolder}/{sample}/{sample}_01_mimps_downstream.fasta',
-        mimp_merged_trans = 'output/{outfolder}/{sample}/{sample}_02_translated_mimps_downstream.fasta',
-        orfs_genomic_bed = 'output/{outfolder}/{sample}/{sample}_03_foec_orfs_genomic.bed',
-        orfs_genomic_fasta = 'output/{outfolder}/{sample}/{sample}_04_foec_orfs_genomic.fasta',
-        closest_bed = 'output/{outfolder}/{sample}/{sample}_05_closest_mimps.tsv',
-        pro_fasta_orf = 'output/{outfolder}/{sample}/{sample}_06_putative_orfs_protein.fasta',
-        gen_fasta_orf = 'output/{outfolder}/{sample}/{sample}_07_putative_orfs_genomic.fasta',
-        pro_fasta_eff = 'output/{outfolder}/{sample}/{sample}_08_putative_effectors_protein.fasta',
-        gen_fasta_eff = 'output/{outfolder}/{sample}/{sample}_09_putative_effectors_genomic.fasta',
-        mimp_gff = 'output/{outfolder}/{sample}/annotations/{sample}_00_mimps.gff',
-        orf_gff = 'output/{outfolder}/{sample}/annotations/{sample}_01_orfs.gff',
-        sp_gff = 'output/{outfolder}/{sample}/annotations/{sample}_02_signalp.gff3',
-        final_gff = 'output/{outfolder}/{sample}/annotations/{sample}_03_putative_effectors.gff'
+        comp_mimp_fasta = 'output/01.findeffectors/{sample}/{sample}_00_complete_mimps.fasta',
+        mimp_merged_fasta = 'output/01.findeffectors/{sample}/{sample}_01_mimps_downstream.fasta',
+        mimp_merged_trans = 'output/01.findeffectors/{sample}/{sample}_02_translated_mimps_downstream.fasta',
+        orfs_genomic_bed = 'output/01.findeffectors/{sample}/{sample}_03_foec_orfs_genomic.bed',
+        orfs_genomic_fasta = 'output/01.findeffectors/{sample}/{sample}_04_foec_orfs_genomic.fasta',
+        closest_bed = 'output/01.findeffectors/{sample}/{sample}_05_closest_mimps.tsv',
+        pro_fasta_orf = 'output/01.findeffectors/{sample}/{sample}_06_putative_orfs_protein.fasta',
+        gen_fasta_orf = 'output/01.findeffectors/{sample}/{sample}_07_putative_orfs_genomic.fasta',
+        pro_fasta_eff = 'output/01.findeffectors/{sample}/{sample}_08_putative_effectors_protein.fasta',
+        gen_fasta_eff = 'output/01.findeffectors/{sample}/{sample}_09_putative_effectors_genomic.fasta',
+        mimp_gff = 'output/01.findeffectors/{sample}/annotations/{sample}_00_mimps.gff',
+        orf_gff = 'output/01.findeffectors/{sample}/annotations/{sample}_01_orfs.gff',
+        sp_gff = 'output/01.findeffectors/{sample}/annotations/{sample}_02_signalp.gff3',
+        final_gff = 'output/01.findeffectors/{sample}/annotations/{sample}_03_putative_effectors.gff'
 
     message:
         'Renaming output files to improve organization for {wildcards.sample}'
     benchmark:
-        'output/{outfolder}/benchmarks/part_01/{sample}_part_1.benchmark.txt'
+        'output/01.findeffectors/benchmarks/part_01/{sample}_part_1.benchmark.txt'
     run:
         inputs = list({input})[0]
         outputs = list({output})[0]

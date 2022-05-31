@@ -3,11 +3,11 @@ rule diamond_makedb:
     input:
         prot_effs = 'output/01.findeffectors/all_putative_effectors_protein.fasta'
     output:
-        'output/{outfolder}/diamond.dmnd'
+        'output/02.clustereffectors/diamond.dmnd'
     conda:
         '../envs/diamond.yml'
     log:
-        'output/{outfolder}/logs/diamond_makedb.log'
+        'output/02.clustereffectors/logs/diamond_makedb.log'
     message:
         'Creating Diamond database'
     params:
@@ -24,13 +24,13 @@ rule diamond_blastx:
 # Runs BLASTP with Diamond
     input:
         gen_effs = 'output/01.findeffectors/all_putative_effectors_genomic.fasta',
-        dmnd_db = 'output/{outfolder}/diamond.dmnd'
+        dmnd_db = 'output/02.clustereffectors/diamond.dmnd'
     output:
-        dmnd_tsv = 'output/{outfolder}/diamond_out.tsv'
+        dmnd_tsv = 'output/02.clustereffectors/diamond_out.tsv'
     conda:
         '../envs/diamond.yml'
     log:
-        'output/{outfolder}/logs/diamond_blastx.log'
+        'output/02.clustereffectors/logs/diamond_blastx.log'
     message:
         'Running Diamond BLASTX'
     params:
@@ -46,9 +46,9 @@ rule diamond_blastx:
 rule mcl:
 # Creates clusters with MCL
     input:
-        dmnd_tsv = 'output/{outfolder}/diamond_out.tsv'
+        dmnd_tsv = 'output/02.clustereffectors/diamond_out.tsv'
     output:
-        mcl_out = 'output/{outfolder}/clusters.out'
+        mcl_out = 'output/02.clustereffectors/clusters.out'
     conda:
         '../envs/mcl.yml'
     message:
@@ -65,12 +65,12 @@ rule fasta_clusters:
 # Uses MCL output to create cluster FASTA files
     input:
         gen_effs = 'output/01.findeffectors/all_putative_effectors_genomic.fasta',
-        mcl_out = 'output/{outdir}/clusters.out'
+        mcl_out = 'output/02.clustereffectors/clusters.out'
     output:
-        directory('output/{outdir}/clusters_fasta')
+        directory('output/02.clustereffectors/clusters_fasta')
     message:
         'Getting cluster information'
     benchmark:
-        'output/{outdir}/benchmarks/part_02/part_02.benchmark.txt'
+        'output/02.clustereffectors/benchmarks/part_02/part_02.benchmark.txt'
     shell:
         'python3 scripts/02_get_cluster_fasta.py {input} {output}'

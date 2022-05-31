@@ -1,6 +1,8 @@
 configfile: 'config/genome_config.yaml'
 configfile: 'config/config.yaml'
 
+containerized: "docker://meganbg/foec:2.0"
+
 import subprocess
 
 eff_in = config['effectors']
