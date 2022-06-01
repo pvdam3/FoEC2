@@ -52,6 +52,7 @@ Type `snakemake -h` for a detailed help page for more Snakemake related options.
 
 Once the pipeline has finished, the output files can be visualized in the RShiny app (`app.R`). Usage (R):
 ```R
+library(shiny)
 runApp("scripts/app.R")
 ```
 
