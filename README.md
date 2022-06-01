@@ -29,10 +29,14 @@ The following steps are executed in this pipeline:
 
 ## Usage
 Please first make sure to have all the dependencies installed (see below).
-This pipeline requires that the paths to the input genomes be in a specific configuration file. In order to facilitate this, the `foec_setup.sh` script automatically creates this config file. Usage, where `infolder` is the path to a
-directory which only contains the input genomes in FASTA format: 
+This pipeline requires that the paths to the input genomes be in a specific configuration file. In order to facilitate this, the `foec_setup.sh` script automatically creates this config file. Usage, where `infolder` is the path to a directory which only contains the input genomes in FASTA format: 
 ```bash
 ./foec_setup.sh -g [infolder]
+```
+
+FoEC2 can also be run with an existing list of effectors. To do this, FASTA files representing these effectors will need to be placed into a separate directory `effectors`. The pipeline will then skip the putative effector prediction steps. Usage:
+```bash
+./foec_setup.sh -g [infolder] -e [effectors]
 ```
 
 Type `./foec_setup.sh -h` for a detailed help page including options.
@@ -53,8 +57,8 @@ runApp("scripts/app.R")
 
 The app will open at the 'Data' tab, where the output from the pipeline can be uploaded:
 * PAV table: the presence/absence variation table (`output/03.presenceabsence/01_presence_absence.tsv`)
-* Genome metadata table: extra information concerning genomes to include in the visualization (i.e. *formae speciales*, sample location, etc.). A template can be found at `config/visualization_config.csv`
-* Putative effector metadata table: extra information concerning putative effectors to include in the visualization (i.e. suspected SIX genes, other genes of interest). A template can be found at `config/visualization_config_effectors.csv`
+* Genome metadata table: extra information concerning genomes to include in the visualization (i.e. *formae speciales*, sample location, etc.). A template can be found at `config/visualization_config.csv` after running the pipeline.
+* Putative effector metadata table: extra information concerning putative effectors to include in the visualization (i.e. suspected SIX genes, other genes of interest). A template can be found at `config/visualization_config_effectors.csv` after running the pipeline.
 
 The plots can be seen in the 'Plots' tab:
 * Heatmap: this plot depicts the presence / absence patterns of putative effectors across genomes.
@@ -65,7 +69,7 @@ The plots can be seen in the 'Plots' tab:
 The pipeline relies a number of different 3rd party programs and libraries:
 * [Conda](https://docs.conda.io/en/latest/)
 * [Snakemake](https://snakemake.readthedocs.io/en/stable/getting_started/installation.html)
-* [Singularity](https://sylabs.io/guides/3.0/user-guide/quick_start.html#quick-installation-steps) (only required to run FoEC2 with a container - recommended for macOS users)
+* [Singularity](https://sylabs.io/guides/3.0/user-guide/quick_start.html#quick-installation-steps) (only required to run FoEC2 with a container - recommended for users experiencing problems with installing conda environments)
 * [SignalP](http://www.cbs.dtu.dk/cgi-bin/nph-sw_request?signalp) (only versions 4 and 5 are currently supported)
 * R with the following libraries installed:
   * shiny
