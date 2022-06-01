@@ -73,6 +73,10 @@ def get_eff_numbers(col_list, peff_outfile, peff_csv):
     with open(peff_outfile, 'w') as pout, open(peff_csv, 'w') as csv:
         csv.write('Putative effectors\n')
         for peff in col_list:
+            # if peff.startswith('p_effector_'):
+            #     e_id = peff.split('_')[-1]
+            # else:
+            #     e_id = peff
             e_id = peff.split('_')[-1]
             pout.write(e_id + '\n')
             csv.write('%s\n' % peff)

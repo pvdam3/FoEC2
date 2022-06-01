@@ -253,6 +253,8 @@ rule get_msas:
         '../envs/mafft.yml'
     threads:
         4
+    params:
+        effdir = config['effectors']
     shell:
         """
         fastas=output/03.presenceabsence/hit_fastas
@@ -264,7 +266,11 @@ rule get_msas:
             if [ -z "$(ls -A $clust_dir)" ]; then
                 continue
             else
-                clust_num=$(echo "${{clust_dir%/}}" | grep -o -E "[0-9]+$")
+                if [ "{params.effdir}" == none ]; then
+                    clust_num=$(echo "${{clust_dir%/}}" | grep -o -E "[0-9]+$")
+                else
+                    clust_num=$(basename ${{clust_dir}})
+                fi
                 cat $clust_dir/* > {output.msa_in}/$clust_num.fa
             fi
         done

@@ -11,7 +11,7 @@ library(msaR)
 # TODO: Change putative effector MSA file path
 
 # Define the UI for the app
-ui <- navbarPage('Putative effector detection pipeline', theme = shinytheme("sandstone"),
+ui <- navbarPage('FoEC2', theme = shinytheme("sandstone"),
                  tabPanel("Data",
                           sidebarLayout(
                             sidebarPanel(

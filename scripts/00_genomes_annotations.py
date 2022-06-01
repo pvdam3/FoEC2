@@ -142,8 +142,9 @@ def main():
     print('genomes\t\tf.sp.\ngen_a.fasta\tcubense\ngen_b.fasta\tlilii')
     next_step = \
     'Continue by running the snakemake pipeline with:\n\tsnakemake --use-conda '\
-    '--cores [N]\n--OR for macOS users--\n\tsnakemake --use-singularity '\
-    '--use-conda --cores [N]\nTo see more options, use:\n\tsnakemake -h'
+    '--cores [N]\n--OR for users experiencing problems with installing conda '\
+    'environments--\n\tsnakemake --use-singularity --use-conda --cores [N]\n'\
+    'To see more options, use:\n\tsnakemake -h'
     print('\n' + next_step)
 
 # Main
