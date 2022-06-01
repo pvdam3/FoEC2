@@ -83,8 +83,9 @@ The pipeline relies a number of different 3rd party programs and libraries:
   * DT
   * rhandsontable
   * [msaR](https://zachcp.github.io/msaR/)
+  * grid
   ```R
-  install.packages(c("shiny", "shinythemes", "dendextend", "RColorBrewer", "pals", "pheatmap", "phylogram", "DT", "rhandsontable", "msaR"))
+  install.packages(c("shiny", "shinythemes", "dendextend", "RColorBrewer", "pals", "pheatmap", "phylogram", "DT", "rhandsontable", "msaR", "grid"))
   ```
 * Python with the following package installed:
   * [BioPython](http://biopython.org/wiki/Download)

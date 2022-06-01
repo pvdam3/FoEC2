@@ -8,6 +8,7 @@ library(phylogram)
 library(DT)
 library(rhandsontable)
 library(msaR)
+library(grid)
 # TODO: Change putative effector MSA file path
 
 # Define the UI for the app
@@ -477,7 +478,8 @@ server <- function(input, output, session) {
       filename = input$heatname,
       content = function(file) {
         pdf(file = file, width = ((as.numeric(input$heatWidth)/96) + 1), height = ((as.numeric(input$heatHeight)/96) + 1))
-        plot(pheat())
+        grid.draw(rectGrob(gp=gpar(fill="white", lwd=0)))
+        grid.draw(pheat())
         dev.off()
       }
     )
