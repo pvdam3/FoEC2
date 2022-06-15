@@ -19,11 +19,9 @@ Usage $0:
         genome files. Must have the same root name as files present in genome
         directory and be in GFF3 format.
     -e  <path>
-        effector directory. (optional) A directory containing nucleotide FASTA
-        file(s) with curated effector sequences (one file per sequence). These
-        effectors will be searched for in the input genomes. If more than one
-        sequence is found in the FASTA file, multiple files will be created
-        using the header as a file name.
+        effector file (optional). A FASTA file containing curated effector 
+        nucleotide sequences. These effectors will be searched for in the input
+        genomes.
     -g  <path>
         genome directory (required). Directory which only contains genomes in
         FASTA format to run through the pipeline.
@@ -40,7 +38,7 @@ while getopts ':a:e:g:h?' flag; do
             ;;
         e)
             effectors=("$OPTARG")
-            echo "Added effector FASTA file directory: $OPTARG" >&2
+            echo "Using effector FASTA file directory: $OPTARG" >&2
             ;;
         g)
             genome_dir=$OPTARG
@@ -53,17 +51,30 @@ while getopts ':a:e:g:h?' flag; do
         esac
     done
 if [ ${#effectors[@]} -gt 0 ]; then
-    sed -i "s@^effectors: .*@effectors: $effectors@g" $settings_config
+    if [ -d $effectors ]; then
+        echo "ERROR! A directory was provided to '-e' instead of a file."
+        exit 21
+    elif [ -f $effectors ]; then
+        sed -i "s@^effectors: .*@effectors: $effectors@g" $settings_config
+    else
+        echo "ERROR! Unrecognized input provided to '-e'. "
+        exit 1
+    fi
 else
 # Make sure 'none' is there if effector dir isn't specified
     sed -i "s@^effectors: .*@effectors: none@g" $settings_config
 fi
 if [ -n "$genome_dir" ]; then
-python3 scripts/00_genomes_annotations.py $genome_dir $annotation_dir $genome_config
-grep -oP '.*:' $genome_config > $vis_config && sed -i 's/://g' $vis_config
-sed -i 's/ //g' $vis_config
+    if [ -d $genome_dir ]; then
+        python3 scripts/00_genomes_annotations.py $genome_dir $annotation_dir $genome_config
+        grep -oP '.*:' $genome_config > $vis_config && sed -i 's/://g' $vis_config
+        sed -i 's/ //g' $vis_config
+    elif [ -f $genome_dir ]; then
+        echo "ERROR! A file was provided to '-g' instead of a directory."
+        exit 20
+    fi
 else
-echo "Missing required argument -g <genome_directory>. Non-zero exit status."
-exit 2
+    echo "Missing required argument -g <genome_directory>. Non-zero exit status."
+    exit 2
 fi
 

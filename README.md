@@ -1,4 +1,4 @@
-# Fusarium effectors
+# Fusarium oxysproum Effector Clustering 2 (FoEC2)
 
 This pipeline can identify putative effectors in a provided set of *Fusarium oxysporum* genomes and show their presence/absence variation across all input genomes.
 
@@ -34,7 +34,7 @@ This pipeline requires that the paths to the input genomes be in a specific conf
 ./foec_setup.sh -g [infolder]
 ```
 
-FoEC2 can also be run with an existing list of effectors. To do this, FASTA files representing these effectors will need to be placed into a separate directory `effectors`. The pipeline will then skip the putative effector prediction steps. Usage:
+FoEC2 can also be run with existing curated effectors. To do this, a FASTA file containing these sequences (`effectors`) can be provided to the effector flag. The pipeline will then skip the putative effector prediction steps. Usage:
 ```bash
 ./foec_setup.sh -g [infolder] -e [effectors]
 ```
