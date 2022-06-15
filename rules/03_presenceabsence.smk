@@ -25,39 +25,23 @@ rule mafft_msa:
         done
         """
 
-def hmm_input(eff_dir):
+def hmm_input(eff_file):
     """Determines input directory for hmmer_profiles rule
 
-    eff_dir --  input, path to directory with effectors (if provided)
+    eff_file --  input, path to file with effectors (if provided)
     """
-    seqs = 0
-    multi = False
     if os.path.exists('p_effector_check'):
             os.system('rm p_effector_check/*')
             os.system('rmdir p_effector_check')
-    if eff_dir == 'none':
+    if eff_file == 'none':
         return 'output/03.presenceabsence/temp_hmm_in'
     else:
-        for eff_file in os.listdir(eff_dir):
-            os.system('mkdir -p p_effector_check')
-            out_dir = 'p_effector_check'
-            eff_path = '%s/%s' %(eff_dir, eff_file)
-            with open(eff_path, 'r') as read_eff:
-                while not multi:
-                    for line in read_eff:
-                        line = line.strip()
-                        if line.startswith('>'):
-                            seqs += 1
-                        if seqs > 1:
-                            multi = True
-                            break
-            if multi:
-                sep_cmd = \
-                """awk '/^>/ {close(F) ; F = "%s/"substr($0,2)".fasta"} {print >> F}' %s""" \
-                % (out_dir, eff_path)
-                os.system(sep_cmd)
-            elif not multi:
-                os.system('cp %s %s/%s' % (eff_file, out_dir, eff_file))
+        os.system('mkdir -p p_effector_check')
+        out_dir = 'p_effector_check'
+        sep_cmd = \
+        """awk '/^>/ {close(F) ; F = "%s/"substr($0,2)".fasta"} {print >> F}' %s""" \
+        % (out_dir, eff_file)
+        os.system(sep_cmd)
         return out_dir
 
 rule hmmer_profiles:
@@ -74,7 +58,19 @@ rule hmmer_profiles:
         'Creating HMM profiles...'
     shell:
         """
-        mkdir -p {output} &&
+        mkdir -p {output}
+        if [[ "{input}" == *p_effector_check ]]; then
+            for infile in {input}/*; do
+            if [[ -f "$infile" ]]; then
+                new_name=$(echo "$infile" | sed 's/ /_/g')
+                if [[ "$infile" == "$new_name" ]]; then
+                    :
+                else
+                    mv "$infile" "$new_name"
+                fi
+            fi
+        done
+        fi
         for msa_file in {input}/*; do
             if [[ $msa_file == *.afa ]]; then
                 hmm_file=$(basename $msa_file .afa)
