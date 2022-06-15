@@ -38,7 +38,7 @@ while getopts ':a:e:g:h?' flag; do
             ;;
         e)
             effectors=("$OPTARG")
-            echo "Using effector FASTA file directory: $OPTARG" >&2
+            echo "Using effector FASTA file: $OPTARG" >&2
             ;;
         g)
             genome_dir=$OPTARG
