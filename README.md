@@ -1,4 +1,4 @@
-# Fusarium oxysproum Effector Clustering 2 (FoEC2)
+# Fusarium oxysporum Effector Clustering 2 (FoEC2)
 
 This pipeline can identify putative effectors in a provided set of *Fusarium oxysporum* genomes and show their presence/absence variation across all input genomes.
 
