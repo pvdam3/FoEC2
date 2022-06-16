@@ -21,11 +21,11 @@ ui <- navbarPage('FoEC2', theme = shinytheme("sandstone"),
                               fileInput("pavFile", "PAV table",
                                         accept = c('.tsv')
                               ),
-                              helpText("The genome metadata table can be used to add information about your genomes. (i.e. formae speciales)."),
+                              helpText("The genome metadata table can be used to add information about your genomes. (i.e. formae speciales). CSV file."),
                               fileInput("metaFile", "Genome metadata table",
                                         accept = c('.csv')
                               ),
-                              helpText("The putative effector metadata table can be used to add information about the detected putative effectors (i.e. SIX genes)."),
+                              helpText("The putative effector metadata table can be used to add information about the detected putative effectors (i.e. SIX genes). CSV file."),
                               fileInput("emetaFile", "Putative effector metadata table",
                                         accept = c('.csv')
                               ),
@@ -123,10 +123,12 @@ ui <- navbarPage('FoEC2', theme = shinytheme("sandstone"),
                                          selectInput("ecatSelect", h5("Putative effector label"),
                                                      choices = ""),
                                          h4("Misc"),
-                                         sliderInput('heatHeight', "Plot height (px)", 0, 2500, 1000),
-                                         sliderInput('heatWidth', "Plot width (px)", 0, 2500, 1000),
-                                         sliderInput('cfontsize', 'Column font size', 0, 20, 5),
-                                         sliderInput('rfontsize', 'Row font size', 0, 20, 10),
+                                         sliderInput('heatHeight', "Plot height (px)", 1, 2500, 1000),
+                                         sliderInput('heatWidth', "Plot width (px)", 1, 2500, 1000),
+                                         checkboxInput('ccheck', label = "Column labels", value = TRUE),
+                                         checkboxInput('rcheck', label = "Row labels", value = TRUE),
+                                         sliderInput('cfontsize', 'Column font size', 1, 20, 5),
+                                         sliderInput('rfontsize', 'Row font size', 1, 20, 10),
                                          textInput('ncuts', 'Number of breaks', value = 1),
                                          selectInput("colors", h5("Colors"),
                                                      choices = list("Blues" = 'Blues', "Greens" = 'Greens', "Purples" = "Purples", "Reds" = "Reds",
@@ -329,6 +331,12 @@ server <- function(input, output, session) {
     rsize <- as.numeric(input$rfontsize)
     pwidth <- as.numeric(input$heatWidth)/96
     pheight <- as.numeric(input$heatHeight)/96
+    ncutree <- strtoi(input$ncuts)
+    if (ncutree < 1) {
+      ncutree <- 1
+    } else if (ncutree > (nrow(data) - 1)) {
+      ncutree <- (nrow(data) - 1)
+    }
     bigScale = append(glasbey(), c("#967ACC", "#C7B8E6", "#CCCCCC"))
     bigScale = replace(bigScale, bigScale=="#201A01", "#A5A10E")
     if (dist_met_genomes == 'binary' || dist_met_effs == 'binary') {
@@ -368,10 +376,6 @@ server <- function(input, output, session) {
         # Get unique colors for annotation
         colors = unname(bigScale[1:nCats])
         names(colors) <- uniqueFeat
-        # # Set '-' to white
-        # if (na_present){
-        #   colors = c(colors, c('-'='white'))
-        # }
         # If all values are NA, set everything to NA to not visualize
       } else {
         color_feature = NA
@@ -459,7 +463,9 @@ server <- function(input, output, session) {
                        legend = legBool,
                        brewer.pal(n = 5, name = input$colors),
                        breaks = nBreaks,
-                       cutree_rows = strtoi(input$ncuts),
+                       show_colnames = input$ccheck,
+                       show_rownames = input$rcheck,
+                       cutree_rows = ncutree,
                        angle_col = 45,
                        fontsize_col = csize,
                        fontsize_row = rsize,
