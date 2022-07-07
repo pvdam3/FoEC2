@@ -32,7 +32,7 @@ rule diamond_blastp:
     log:
         'output/02.clustereffectors/logs/diamond_blastp.log'
     message:
-        'Running Diamond BLASTX'
+        'Running Diamond BLASTP'
     params:
         cwd = os.getcwd()
     shell:
