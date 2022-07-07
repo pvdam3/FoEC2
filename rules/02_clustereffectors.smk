@@ -20,24 +20,24 @@ rule diamond_makedb:
         'mv {params.cwd}/diamond.dmnd {output} && '
         'mv {params.cwd}/diamond.log {log}'
 
-rule diamond_blastx:
+rule diamond_blastp:
 # Runs BLASTP with Diamond
     input:
-        gen_effs = 'output/01.findeffectors/all_putative_effectors_genomic.fasta',
+        prot_effs = 'output/01.findeffectors/all_putative_effectors_protein.fasta',
         dmnd_db = 'output/02.clustereffectors/diamond.dmnd'
     output:
         dmnd_tsv = 'output/02.clustereffectors/diamond_out.tsv'
     conda:
         '../envs/diamond.yml'
     log:
-        'output/02.clustereffectors/logs/diamond_blastx.log'
+        'output/02.clustereffectors/logs/diamond_blastp.log'
     message:
         'Running Diamond BLASTX'
     params:
         cwd = os.getcwd()
     shell:
-        'diamond blastx '
-        '-q {input.gen_effs} '
+        'diamond blastp '
+        '-q {input.prot_effs} '
         '-d {input.dmnd_db} '
         '-o {output} '
         '--log && '
