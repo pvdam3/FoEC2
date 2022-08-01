@@ -105,7 +105,7 @@ def orf_detection(output_dir):
         'final_peffectors'
     ]
     stats_df = pd.DataFrame(info_list, columns = myCols)
-    stats_df.to_csv('./stats_report_583.csv', index = False)
+    stats_df.to_csv('./stats_report.csv', index = False)
 
 def main():
     """Functions to be executed in main.
