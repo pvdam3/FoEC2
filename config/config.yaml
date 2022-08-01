@@ -3,9 +3,9 @@
 search_dist: 2500
 # Translation mode: [3] frame or [6] frame. Default: 3
 mode: 3
-# Minimum effector length in aa
-min_len: 10
-# Maximum effector length in aa
+# Minimum effector length in aa. Default = 20
+min_len: 20
+# Maximum effector length in aa. Default = 600
 max_len: 600
 # Minimum number of cysteines required for putative effectors (default: 2)
 cysteine_threshold: 0
