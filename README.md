@@ -1,6 +1,6 @@
 # Fusarium oxysporum Effector Clustering 2 (FoEC2)
 
-This pipeline can identify putative effectors in a provided set of *Fusarium oxysporum* genomes and show their presence/absence variation across all input genomes.
+This pipeline can identify putative effectors in a provided set of *Fusarium oxysporum* genomes and show their presence/absence variation across all input genomes. For more details, please see [our paper](http://doi.org/10.3389/fpls.2022.1012688).
 
 ## Concept
 The following steps are executed in this pipeline:
@@ -92,3 +92,5 @@ The pipeline relies a number of different 3rd party programs and libraries:
 
 ## References
 van Dam, P., Fokkens, L., Schmidt, S. M., Linmans, J. H. J., Kistler, H. C., Ma, L.-J., & Rep, M. (2016). Effector profiles distinguish <I>formae speciales </I>of <I>Fusarium oxysporum</I>. Environmental Microbiology. http://doi.org/10.1111/1462-2920.13445
+
+Brenes Guallar, M. A., Fokkens, L., Rep, M., Berke, L., & van Dam, P. (2022). <I>Fusarium oxysporum</I> effector clustering version 2: An updated pipeline to infer host range. Frontiers in Plant Science. http://doi.org/10.3389/fpls.2022.1012688
