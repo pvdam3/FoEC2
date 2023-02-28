@@ -105,7 +105,7 @@ rule combine_mimps:
         'Writing "{output}"'
     shell:
         'cat {input} > {output} && '
-        'rm features_level*.json && rm features_spread.json' # Remove JSON from AGAT when tool is done
+        'rm feature_levels.yaml' # Remove YAML from AGAT when tool is done
 
 rule combine_fasta:
 # Combine all putative effector genomic/protein FASTAs into a single FASTA
@@ -119,12 +119,14 @@ rule combine_fasta:
     output:
         eff_pro = 'output/01.findeffectors/all_putative_effectors_protein.fasta',
         eff_gen = 'output/01.findeffectors/all_putative_effectors_genomic.fasta'
+    log:
+        'output/01.findeffectors/logs/combine_fasta/combine_fasta.log'
     message:
         'Writing genomic and protein FASTA files: '
         '"{output.eff_pro}" and "{output.eff_gen}"'
     shell:
-        'cat {input.eff_pro} > {output.eff_pro} && '
-        'cat {input.eff_gen} > {output.eff_gen}'
+        'cat {input.eff_pro} > {output.eff_pro} 2>{log} && '
+        'cat {input.eff_gen} > {output.eff_gen} 2>{log}'
 
 rule combine_bed:
 # Combines left, right and both bed files into a single bed
@@ -340,7 +342,8 @@ rule gffread_extract_protein:
     shell:
         'gffread '
         '-y {output.protein_fasta} '
-        '-g {input}'
+        '-g {input.genome_fasta} '
+        '{input.gff}'
 
 rule final_filter:
 # Filters out sequences by size, cysteine threshold
@@ -349,6 +352,8 @@ rule final_filter:
     output:
         prot = temp('output/01.findeffectors/{sample}/{sample}_putative_final_protein_filtered.fasta'),
         keep = temp('output/01.findeffectors/{sample}/{sample}_putative_final_protein_filtered_keeplist.txt')
+        #prot = 'output/01.findeffectors/{sample}/{sample}_putative_final_protein_filtered.fasta',
+        #keep = 'output/01.findeffectors/{sample}/{sample}_putative_final_protein_filtered_keeplist.txt'
     message:
         'Removing sequences which do not meet minimum size and cysteine content requirements...'
     params:
@@ -443,9 +448,10 @@ rule agat_merge:
         '../envs/agat.yml'
     shell:
         """
-        if [ ! -f features_level3.json ]; then
-            agat_convert_sp_gxf2gxf.pl --expose
-            sed -i 's/"sig_peptide":"exon",/"signal_peptide":"mrna",/g' features_level3.json
+        if [ ! -f feature_levels.yaml ]; then
+            ## requires adjustment of parental feature type of the signal peptide in the config file of AGAT so that it will be recognized:
+            agat levels --expose
+            sed -i 's/sig_peptide: exon/signal_peptide: mrna/g' feature_levels.yaml 2> {log}
         fi
         in_gffs=({input.gffs})
         if [ "${{#in_gffs[@]}}" -gt 1 ]; then
@@ -538,8 +544,8 @@ rule remove_nonsp:
     message:
         'Removing features unrelated to signal peptides for {wildcards.sample}'
     shell:
-        'python3 scripts/01_reduce_to_sp.py {input} {output} && '
-        'rm {input}'
+        'python3 scripts/01_reduce_to_sp.py {input} {output} '
+        #'rm {input}'
 
 rule get_sp_contigs:
 # Gets contigs containing ORFs with SPs for Augustus prediction
@@ -577,25 +583,37 @@ rule merge_augustus:
         merge_loci = temp('output/01.findeffectors/{sample}/annotations/{sample}_mergedloci.gff'),
         out_gff = temp('output/01.findeffectors/{sample}/annotations/{sample}_putative_tofilter_tosort.gff')
     log:
+        agat_cfg = 'output/01.findeffectors/logs/merge_augustus/agat_config_{sample}.log',
         gxf = 'output/01.findeffectors/logs/merge_augustus/agat_sort_{sample}.log',
-        li = 'output/01.findeffectors/logs/merge_augustus/agat_longest_isoform_{sample}.log'
+        lic = 'output/01.findeffectors/logs/merge_augustus/agat_longest_isoform_constructed_{sample}.log',
+        lim = 'output/01.findeffectors/logs/merge_augustus/agat_longest_isoform_mergedloci_{sample}.log'
     params:
-        cwd = os.getcwd()
+        cwd = os.getcwd(),
+        agat_config_yaml_dir = 'config/merge_augustus'
     conda:
         '../envs/agat.yml'
     shell:
-        'python3 scripts/01_construct_gff.py '
-        '{input.aug_dir} '
-        '{input.p_gff} '
-        '{output.construct_gff} && '
+        ## a separate AGAT config.yaml file needs to be constructed for this rule, which specifies the use of --merge_loci
+        ## this behaviour is not wanted in the other AGAT rules, meaning that it has to be placed in a different directory (config/merge_augustus)
+        'mkdir -p {params.agat_config_yaml_dir} && cd {params.agat_config_yaml_dir}; '
+        'if [ ! -f ./config.yaml ]; then '
+            'agat config --expose --merge_loci ;'
+        'elif ! grep -Fq "merge_loci: true" ./config.yaml; then '
+            'agat config --expose --merge_loci ;'
+        'fi 2> ../../{log.agat_cfg} && '
+        'python3 ../../scripts/01_construct_gff.py '
+        '../../{input.aug_dir} '
+        '../../{input.p_gff} '
+        '../../{output.construct_gff} && '
         'agat_convert_sp_gxf2gxf.pl '
-        '-g {output.construct_gff} '
-        '-ml '
-        '-o {output.merge_loci} > {log.gxf} && '
+        '-g ../../{output.construct_gff} '
+        '-o ../../{output.merge_loci} > ../../{log.gxf} && '
         'agat_sp_keep_longest_isoform.pl '
-        '-gff {output.merge_loci} '
-        '-o {output.out_gff} && '
-        'mv {params.cwd}/{wildcards.sample}_constructed.agat.log {log.li}'
+        '-gff ../../{output.merge_loci} '
+        '-o ../../{output.out_gff} && '
+        'mv {wildcards.sample}_constructed.agat.log ../../{log.lic} && '
+        'mv {wildcards.sample}_mergedloci.agat.log ../../{log.lim} && '
+        'cd ../..'
 
 rule rename_output:
     input:

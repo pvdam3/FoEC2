@@ -7,7 +7,7 @@ mode: 3
 min_len: 20
 # Maximum effector length in aa. Default = 600
 max_len: 600
-# Minimum number of cysteines required for putative effectors (default: 2)
+# Minimum number of cysteines required for putative effectors (default: 0)
 cysteine_threshold: 0
 ################### PART 02: EFFECTOR CLUSTERING AND SEARCH ####################
 # MCL inflation [1.2-5.0]. Lower=larger clusters; Higher=finer clusters
@@ -33,7 +33,7 @@ individual_thresh: 20
 progs:
   signalp:
     # Recommed adding SignalP to your PATH to avoid issues
-    path: signalp
+    path: nice signalp
     # Specify version available, 4 or 5
     version: 5
     # Number of sequences that will be run simultaneously (only for version 5)
