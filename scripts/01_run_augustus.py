@@ -35,18 +35,18 @@ def parse_gff(in_gff):
     strand_dict = {'+':'forward', '-':'backward'}
     sp_dict = {}
     with open(in_gff, 'r') as gff:
-        next(gff)
         for line in gff:
-            line = line.strip().split()
-            if line[2].startswith('sig'):
-                rna_id = line[-1].split(';')[1].split('rna:')[-1]
-                if line[0] not in sp_dict:
-                    # Add contig name with SP info, strand and rna ID to dict
-                    sp_dict[line[0]] = [(line[3], line[4], strand_dict[line[6]],
-                    rna_id)]
-                else:
-                    sp_dict[line[0]].append((line[3], line[4],
-                    strand_dict[line[6]], rna_id))
+            if not line.startswith('#'):
+                line = line.strip().split()
+                if line[2].startswith('sig'):
+                    rna_id = line[-1].split(';')[1].split('rna:')[-1]
+                    if line[0] not in sp_dict:
+                        # Add contig name with SP info, strand and rna ID to dict
+                        sp_dict[line[0]] = [(line[3], line[4], strand_dict[line[6]],
+                        rna_id)]
+                    else:
+                        sp_dict[line[0]].append((line[3], line[4],
+                        strand_dict[line[6]], rna_id))
 
     return sp_dict
 

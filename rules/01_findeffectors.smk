@@ -404,7 +404,7 @@ rule run_signalp:
             )
         elif params.version == 4:
             shell('{params.signalp} '
-            '-f short -v -l {log}'
+            '-f short -v -l {log} '
             '-n temp_spv4_{wildcards.sample}.gff '
             '{input} >> {output.sp_summary} && '
             'grep -v \'##\' temp_spv4_{wildcards.sample}.gff | '
