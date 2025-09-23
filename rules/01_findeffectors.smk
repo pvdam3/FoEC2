@@ -390,28 +390,28 @@ rule run_signalp:
         2
     run:
         if params.version == 5:
-            shell('echo "Sample: {wildcards.sample}" > {log} && '
-            '{params.signalp} '
-            '-fasta {input} '
-            '-format short '
-            '-gff3 '
-            '-org euk '
-            '-prefix {wildcards.sample}_sp '
-            '-batch {params.batch} >> {log} && '
-            'mv {params.cwd}/{wildcards.sample}_sp.gff3 {output.sp_gff} && '
-            'mv {params.cwd}/{wildcards.sample}_sp_summary.signalp5 {output.sp_summary} && '
-            'awk -F "\\t" "/^##/ {{next}}; {{print \$1}}" {output.sp_gff} > {output.keep_list}'
+            shell(r"""echo "Sample: {wildcards.sample}" > {log} && 
+            {params.signalp} \
+            -fasta {input} \
+            -format short \
+            -gff3 \
+            -org euk \
+            -prefix {wildcards.sample}_sp \
+            -batch {params.batch} >> {log} && 
+            mv {params.cwd}/{wildcards.sample}_sp.gff3 {output.sp_gff} && 
+            mv {params.cwd}/{wildcards.sample}_sp_summary.signalp5 {output.sp_summary} && 
+            awk -F "\\t" "/^##/ {{next}}; {{print \$1}}" {output.sp_gff} > {output.keep_list}"""
             )
         elif params.version == 4:
-            shell('{params.signalp} '
-            '-f short -v -l {log} '
-            '-n temp_spv4_{wildcards.sample}.gff '
-            '{input} >> {output.sp_summary} && '
-            'grep -v \'##\' temp_spv4_{wildcards.sample}.gff | '
-            'awk \'{{OFS="\\t"}}{{$3="signal_peptide"; $7=$8=$9="."; print $0}}\' > '
-            '{output.sp_gff} && '
-            'sed -i \'1s/^/##gff-version 3\\n/\' {output.sp_gff} && '
-            'awk -F "\\t" "/^##/ {{next}}; {{print \$1}}" {output.sp_gff} > {output.keep_list}'
+            shell(r"""{params.signalp} \
+            -f short -v -l {log} \
+            -n temp_spv4_{wildcards.sample}.gff \
+            {input} >> {output.sp_summary} && 
+            grep -v \'##\' temp_spv4_{wildcards.sample}.gff | 
+            awk \'{{OFS="\\t"}}{{$3="signal_peptide"; $7=$8=$9="."; print $0}}\' > 
+            {output.sp_gff} && 
+            sed -i \'1s/^/##gff-version 3\\n/\' {output.sp_gff} && 
+            awk -F "\\t" "/^##/ {{next}}; {{print \$1}}" {output.sp_gff} > {output.keep_list}"""
             )
 
 rule process_signalp:
@@ -517,6 +517,8 @@ rule agat_sort:
     params:
         cwd = os.getcwd(),
         log_name = '{sample}_{description}_tosort.agat.log'
+    wildcard_constraints:
+        description=".+(?<!_tosort)"
     shell:
         'agat_convert_sp_gxf2gxf.pl '
         '-g {input} '
